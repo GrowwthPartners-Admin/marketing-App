@@ -13,6 +13,7 @@ import ProcessSection from '../components/ProcessSection'
 import ServicesSection, { services } from '../components/ServicesSection'
 import SocialProofSection from '../components/SocialProofSection'
 import WhyUsSection from '../components/WhyUsSection'
+import { WhatsAppWidget } from '../components/WhatsAppWidget'
 
 const pageTitle = 'Fractional CFO Services for Singapore Businesses | Growwth Partners'
 const pageDescription =
@@ -136,6 +137,7 @@ export default function HomePage() {
             <FaqSection />
           </div>
         </main>
+        <WhatsAppWidget />
         <Footer />
       </div>
     </>
