@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -19,6 +19,7 @@ import {
   sendToContactApi,
   type ContactFormData,
 } from '../lib/contactApi'
+import { trackConsultationLeadConversion } from '../lib/googleAds'
 
 interface ConsultationFormModalProps {
   isOpen: boolean
@@ -115,6 +116,7 @@ export default function ConsultationFormModal({
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<'idle' | 'error'>('idle')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const submissionInProgress = useRef(false)
 
   useEffect(() => {
     if (!isOpen) return
@@ -165,10 +167,13 @@ export default function ConsultationFormModal({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (submissionInProgress.current) return
+
     setStatus('idle')
 
     if (!validateForm()) return
 
+    submissionInProgress.current = true
     setIsSubmitting(true)
 
     try {
@@ -181,6 +186,7 @@ export default function ConsultationFormModal({
       })
 
       await sendToContactApi(payload)
+      trackConsultationLeadConversion()
       setErrors({})
       setFormData(initialFormData)
       onClose()
@@ -189,6 +195,7 @@ export default function ConsultationFormModal({
       console.error('Error submitting consultation form:', error)
       setStatus('error')
     } finally {
+      submissionInProgress.current = false
       setIsSubmitting(false)
     }
   }
